@@ -1,0 +1,10 @@
+ARG BASE_IMAGE="centos:centos7"
+
+FROM $BASE_IMAGE AS install_tools
+ARG DISTRO=centos
+
+### Install common tools
+
+COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
+RUN bash "$INST_SCRIPTS/tools/install_tools.sh" && rm -rf "$INST_SCRIPTS/tools/"
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'

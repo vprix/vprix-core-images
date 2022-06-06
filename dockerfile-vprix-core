@@ -1,0 +1,135 @@
+ARG BASE_IMAGE="ubuntu:20.04"
+
+FROM $BASE_IMAGE AS install_tools
+
+LABEL "org.opencontainers.image.authors"='vprix team "info@vprix.com"'
+LABEL "com.vprix.image"="true"
+
+
+ARG START_XFCE4=0
+ARG BG_IMG=bg_vprix.png
+ARG DISTRO=ubuntu
+ARG LANG='en_US.UTF-8'
+ARG LANGUAGE='en_US:en'
+#ARG LC_ALL='en_US.UTF-8'
+
+ENV DISPLAY=:0 \
+    VPRIX_PORT=8080 \
+    VNC_RESOLUTION=1280x720 \
+    MAX_FRAME_RATE=24 \
+    VNCOPTIONS="-PreferBandwidth -DynamicQualityMin=4 -DynamicQualityMax=7 -DLP_ClipDelay=0" \
+    HOME=/home/vprix-user \
+    TERM=xterm \
+    STARTUPDIR=/dockerstartup \
+    INST_SCRIPTS=/dockerstartup/install \
+    VPRIX_VNC_PATH=/usr/share/vprixvnc \
+    VNC_COL_DEPTH=24 \
+    VNC_RESOLUTION=1280x1024 \
+    VNC_PW=vncpassword \
+    VNC_VIEW_ONLY_PW=vncviewonlypassword \
+    SHELL=/bin/bash \
+    START_XFCE4=$START_XFCE4 \
+    LANG=$LANG \
+    LANGUAGE=$LANGUAGE \
+#    LC_ALL=$LC_ALL \
+    VPRIX_VNC_AUTO_RECOVER=true
+
+EXPOSE $VPRIX_PORT
+
+WORKDIR $HOME
+RUN mkdir -p $HOME/Desktop
+
+# 安装基础依赖
+COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
+## 正式编译的逻辑
+#RUN bash $INST_SCRIPTS/tools/install_tools.sh && rm -rf $INST_SCRIPTS/tools/
+## 测试编译的逻辑
+RUN  cp /etc/apt/sources.list /etc/apt/sources.list.backup && \
+     cp $INST_SCRIPTS/tools/sources.list /etc/apt/sources.list && \
+     apt-get update && \
+     DEBIAN_FRONTEND=noninteractive TZ=Asia/Shanghai apt-get -y install tzdata && \
+     apt-get install -y vim wget net-tools locales bzip2 wmctrl software-properties-common mesa-utils && \
+     apt-get clean -y
+
+
+### 安装自定义字体
+#COPY ./src/ubuntu/install/fonts $INST_SCRIPTS/fonts/
+#RUN bash $INST_SCRIPTS/fonts/install_custom_fonts.sh && rm -rf $INST_SCRIPTS/fonts/
+
+
+### 安装 xfce UI
+COPY ./src/ubuntu/install/xfce $INST_SCRIPTS/xfce/
+## 正式编译的逻辑
+#RUN bash $INST_SCRIPTS/xfce/install_xfce_ui.sh && rm -rf $INST_SCRIPTS/xfce/
+## 测试编译的逻辑
+RUN  DEBIAN_FRONTEND=noninteractive apt-get install -y xfce4 xfce4-terminal xterm xclip && \
+     apt-get purge -y pm-utils xscreensaver* && \
+     apt-get clean -y
+
+
+### 设置ui的配置信息和背景图
+ADD ./src/$DISTRO/xfce/.config/ $HOME/.config/
+RUN mkdir -p /usr/share/extra/backgrounds/
+RUN mkdir -p /usr/share/extra/icons/
+ADD /src/common/resources/images/bg_vprix.png  /usr/share/extra/backgrounds/bg_vprix.png
+ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.png
+ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_ubuntu.png
+ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_default.png
+ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_vprix.png
+
+
+### 安装tigervnc组件
+COPY ./src/ubuntu/install/tiger_vnc $INST_SCRIPTS/tiger_vnc/
+## 正式编译的逻辑
+#RUN bash $INST_SCRIPTS/tiger_vnc/install_tiger_vnc.sh && rm -rf $INST_SCRIPTS/tiger_vnc/
+## 测试编译的逻辑
+RUN   apt -y install tigervnc-standalone-server && \
+      apt clean -y
+
+### 安装vprix agent
+COPY ./src/common/agent $INST_SCRIPTS/agent/
+RUN bash $INST_SCRIPTS/agent/install_vprix_agent.sh && rm -rf $INST_SCRIPTS/agent/
+
+
+
+#### 安装自定义鼠标指针
+#COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
+#RUN bash $INST_SCRIPTS/cursors/install_cursors.sh && rm -rf $INST_SCRIPTS/cursors/
+
+
+### 创建运行时用户
+RUN (groupadd -g 1000 vprix-user \
+    && useradd -M -u 1000 -g 1000 vprix-user \
+    && usermod -a -G vprix-user vprix-user) ; exit 0
+ENV HOME /home/vprix-user
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+#### FIX PERMISSIONS ## Objective is to change the owner of non-home paths to root, remove write permissions, and set execute where required
+## these files are created on container first exec, by the default user, so we have to create them since default will not have write perm
+#RUN touch $STARTUPDIR/wm.log \
+#    && touch $STARTUPDIR/window_manager_startup.log \
+#    && touch $STARTUPDIR/vnc_startup.log \
+#    && touch $STARTUPDIR/no_vnc_startup.log \
+#    && chown -R root:root $STARTUPDIR \
+#    && find $STARTUPDIR -type d -exec chmod 755 {} \; \
+#    && find $STARTUPDIR -type f -exec chmod 644 {} \; \
+#    && find $STARTUPDIR -type f -iname "*.sh" -exec chmod 755 {} \; \
+#    && find $STARTUPDIR -type f -iname "*.py" -exec chmod 755 {} \; \
+#    && find $STARTUPDIR -type f -iname "*.rb" -exec chmod 755 {} \; \
+#    && find $STARTUPDIR -type f -iname "*.pl" -exec chmod 755 {} \; \
+#    && find $STARTUPDIR -type f -iname "*.log" -exec chmod 666 {} \; \
+#    && chmod 755 $STARTUPDIR/upload_server/kasm_upload_server \
+#    && chmod 755 $STARTUPDIR/audio_input/kasm_audio_input_server \
+#    && chmod 755 $STARTUPDIR/generate_container_user \
+#    && chmod +x $STARTUPDIR/jsmpeg/kasm_audio_out-linux \
+#    && rm -rf $STARTUPDIR/install \
+#    && mkdir -p $STARTUPDIR/kasmrx/Downloads \
+#    && chown 1000:1000 $STARTUPDIR/kasmrx/Downloads \
+#    && chown -R root:root /usr/local/bin \
+#    && chown 1000:root /var/run/pulse
+#
+#USER 1000
+#
+#ENTRYPOINT ["/dockerstartup/kasm_default_profile.sh", "/dockerstartup/vnc_startup.sh", "/dockerstartup/kasm_startup.sh"]
+#CMD ["--wait"]
