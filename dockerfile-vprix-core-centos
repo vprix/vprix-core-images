@@ -64,18 +64,6 @@ RUN yum --enablerepo=epel -y -x gnome-keyring --skip-broken groups install "Xfce
     rm /etc/xdg/autostart/xfce-polkit* && \
     /bin/dbus-uuidgen > /etc/machine-id
 
-
-### 设置ui的配置信息和背景图
-ADD ./src/$DISTRO/xfce/.config/ $HOME/.config/
-RUN mkdir -p /usr/share/extra/backgrounds/
-RUN mkdir -p /usr/share/extra/icons/
-ADD /src/common/resources/images/bg_vprix.png  /usr/share/extra/backgrounds/bg_vprix.png
-ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.png
-ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_ubuntu.png
-ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_default.png
-ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_vprix.png
-
-
 ### 安装tigervnc组件
 COPY ./src/ubuntu/install/tiger_vnc $INST_SCRIPTS/tiger_vnc/
 ## 正式编译的逻辑
@@ -86,6 +74,17 @@ RUN   yum -y install \
              tigervnc-server-module \
              xinetd \
           && yum clean all && rm -rf /tmp/*
+
+
+### 设置ui的配置信息和背景图
+ADD ./src/$DISTRO/xfce/.config/ $HOME/.config/
+RUN mkdir -p /usr/share/extra/backgrounds/
+RUN mkdir -p /usr/share/extra/icons/
+
+ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.png
+ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_default.png
+
+
 
 ### 安装vprix agent
 COPY ./src/common/agent $VPRIX_VNC_PATH/
