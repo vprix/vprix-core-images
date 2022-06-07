@@ -87,8 +87,8 @@ RUN   apt -y install tigervnc-standalone-server && \
       apt clean -y
 
 ### 安装vprix agent
-COPY ./src/common/agent $INST_SCRIPTS/agent/
-RUN bash $INST_SCRIPTS/agent/install_vprix_agent.sh && rm -rf $INST_SCRIPTS/agent/
+COPY ./src/common/agent $VPRIX_VNC_PATH/
+RUN bash $VPRIX_VNC_PATH/install_vprix_agent.sh
 
 
 
@@ -133,3 +133,4 @@ RUN mkdir -p $HOME && chown -R 1000:0 $HOME
 #
 #ENTRYPOINT ["/dockerstartup/kasm_default_profile.sh", "/dockerstartup/vnc_startup.sh", "/dockerstartup/kasm_startup.sh"]
 #CMD ["--wait"]
+ENTRYPOINT ["/usr/share/vprixvnc/agent","--debug"]
