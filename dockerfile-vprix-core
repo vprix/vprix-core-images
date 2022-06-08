@@ -11,28 +11,22 @@ ARG BG_IMG=bg_vprix.png
 ARG DISTRO=ubuntu
 ARG LANG='en_US.UTF-8'
 ARG LANGUAGE='en_US:en'
-#ARG LC_ALL='en_US.UTF-8'
 
 ENV DISPLAY=:0 \
     VPRIX_PORT=8080 \
-    VNC_RESOLUTION=1280x720 \
-    MAX_FRAME_RATE=24 \
-    VNCOPTIONS="-PreferBandwidth -DynamicQualityMin=4 -DynamicQualityMax=7 -DLP_ClipDelay=0" \
+    VPRIX_USER="vprix-user" \
+    VPRIX_AGENT_PATH=/usr/share/vprix_agent \
     HOME=/home/vprix-user \
-    TERM=xterm \
     STARTUPDIR=/dockerstartup \
     INST_SCRIPTS=/dockerstartup/install \
-    VPRIX_VNC_PATH=/usr/share/vprixvnc \
     VNC_COL_DEPTH=24 \
     VNC_RESOLUTION=1280x1024 \
-    VNC_PW=vncpassword \
-    VNC_VIEW_ONLY_PW=vncviewonlypassword \
+    VNC_PASSWORD=vprix.com \
+    VNC_OPTIONS="-PreferBandwidth -DynamicQualityMin=4 -DynamicQualityMax=7 -DLP_ClipDelay=0" \
     SHELL=/bin/bash \
     START_XFCE4=$START_XFCE4 \
     LANG=$LANG \
-    LANGUAGE=$LANGUAGE \
-#    LC_ALL=$LC_ALL \
-    VPRIX_VNC_AUTO_RECOVER=true
+    LANGUAGE=$LANGUAGE
 
 EXPOSE $VPRIX_PORT
 

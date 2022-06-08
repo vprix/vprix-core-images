@@ -3,7 +3,11 @@ set -e
 
 echo "安装常用工具，以便进行下一步安装。"
 if [[ "${DISTRO}" == @(centos|oracle7) ]] ; then
-  yum install -y vim wget net-tools bzip2 python3 ca-certificates
+  yum -y  install deltarpm
+  yum -y install epel-release
+  yum -y update
+  yum -y install vim  wget which net-tools bzip2
+  yum clean all && rm -rf /tmp/*
 else
   cp /etc/apt/sources.list /etc/apt/sources.list.backup
   cp $INST_SCRIPTS/tools/sources.list /etc/apt/sources.list

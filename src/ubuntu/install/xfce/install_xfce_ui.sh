@@ -55,20 +55,16 @@ fi
 if [ "${DISTRO}" == "ubuntu" ] ;then
    apt-get install -y xfce4 xfce4-terminal xterm xclip
 elif [[ "${DISTRO}" == @(centos|oracle7) ]]; then
-    if [ "${DISTRO}" == centos ]; then
-      yum install -y epel-release
-    else
-      yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    fi
-    disable_epel_nss_wrapper_that_breaks_firefox
-    yum groupinstall xfce -y
-    yum install -y wmctrl xset xclip
-    get_rid_of_policykit_error
-    yum remove -y xfce4-power-manager
+    yum --enablerepo=epel -y -x gnome-keyring --skip-broken groups install "Xfce"
+    yum -y groups install "Fonts"
+    yum erase -y *power* *screensaver*
+
 fi
 
 if [[ "${DISTRO}" == @(centos|oracle7) ]]; then
-  yum clean all
+    yum clean all
+    rm /etc/xdg/autostart/xfce-polkit*
+    /bin/dbus-uuidgen > /etc/machine-id
 else
   apt-get purge -y pm-utils xscreensaver*
   apt-get clean -y
