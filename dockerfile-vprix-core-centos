@@ -4,7 +4,7 @@ FROM $BASE_IMAGE AS install_tools
 
 ARG DISTRO=centos
 ARG START_XFCE4=0
-ARG BG_IMG=bg_vprix.png
+ARG BG_IMG=bg_vprix.jpg
 ARG LANG='en_US.UTF-8'
 ARG LANGUAGE='en_US:en'
 
@@ -77,7 +77,7 @@ RUN yum -y install \
 ADD ./src/$DISTRO/xfce/.config/ $HOME/.config/
 RUN mkdir -p /usr/share/extra/backgrounds/
 RUN mkdir -p /usr/share/extra/icons/
-ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.png
+ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.jpg
 ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_default.png
 
 

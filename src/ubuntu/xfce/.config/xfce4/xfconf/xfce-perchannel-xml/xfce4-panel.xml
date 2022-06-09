@@ -19,7 +19,7 @@
     </property>
     <property name="plugins" type="empty">
         <property name="plugin-1" type="string" value="applicationsmenu">
-            <property name="button-icon" type="string" value="/usr/share/extra/icons/icon_default.png"/>
+            <property name="button-icon" type="string" value="/usr/share/extra/icons/icon_vprix.png"/>
         </property>
         <property name="plugin-3" type="string" value="tasklist"/>
         <property name="plugin-15" type="string" value="separator">

@@ -16,7 +16,7 @@ run:
 	$(REPO):$(TAG)
 
 exec:
-	docker exec -ti ubuntu_desktop_test sh
+	docker exec -ti ubuntu_desktop_test bash
 
 
 build_centos:
@@ -29,4 +29,4 @@ run_centos:
 	$(REPO_CENTOS):$(TAG_CENTOS)
 
 exec_centos:
-	docker exec -ti centos_desktop_test sh
+	docker exec -ti centos_desktop_test bash
