@@ -68,6 +68,18 @@ COPY ./src/ubuntu/install/tiger_vnc $INST_SCRIPTS/tiger_vnc/
 RUN  apt-get -y install tigervnc-standalone-server && \
       apt-get clean -y
 
+### Setup Container User - Libnss Wrapper
+COPY ./src/ubuntu/install/libnss $INST_SCRIPTS/libnss/
+#RUN bash $INST_SCRIPTS/libnss/libnss_wrapper.sh  && rm -rf $INST_SCRIPTS/libnss/
+## 测试编译的逻辑
+RUN  apt-get install -y libnss-wrapper gettext && \
+     apt-get clean -y && \
+     echo 'source $STARTUPDIR/generate_container_user' >> $HOME/.bashrc
+
+### configure startup
+ADD ./src/common/startup_scripts $STARTUPDIR
+RUN bash $STARTUPDIR/set_user_permission.sh $STARTUPDIR $HOME
+
 ### 设置ui的配置信息和背景图
 ADD ./src/$DISTRO/xfce/.config/ $HOME/.config/
 RUN mkdir -p /usr/share/extra/backgrounds/
@@ -75,8 +87,9 @@ RUN mkdir -p /usr/share/extra/icons/
 ADD /src/common/resources/images/bg_vprix.jpg  /usr/share/extra/backgrounds/bg_vprix.jpg
 ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.jpg
 ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_ubuntu.png
-ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_default.png
 ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_vprix.png
+ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_default.png
+
 
 
 
@@ -99,6 +112,6 @@ RUN (groupadd -g 1000 $VPRIX_USER \
     && usermod -a -G $VPRIX_USER $VPRIX_USER) ; exit 0
 RUN mkdir -p $HOME && chown -R 1000:0 $HOME
 
-#USER 1000
+USER 1000
 
 ENTRYPOINT ["/usr/share/vprix_agent/agent","--debug"]
