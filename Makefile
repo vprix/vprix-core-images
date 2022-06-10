@@ -1,10 +1,10 @@
 .PHONY: build run
 
-REPO  ?= ubuntu_desktop
-TAG   ?= laster
+REPO  ?= vprix/core-ubuntu-bionic
+TAG   ?= 0.0.1
 
-REPO_CENTOS  ?= centos_desktop
-TAG_CENTOS   ?= laster
+REPO_CENTOS  ?= vprix/core-centos7
+TAG_CENTOS   ?= 0.0.1
 
 build:
 	docker build -f ./dockerfile-vprix-core -t $(REPO):$(TAG) .
@@ -14,6 +14,9 @@ run:
 	-p 8080:8080 \
 	--name ubuntu_desktop_test \
 	$(REPO):$(TAG)
+
+push:
+	docker push $(REPO):$(TAG)
 
 exec:
 	docker exec -ti ubuntu_desktop_test bash
@@ -27,6 +30,9 @@ run_centos:
 	-p 8080:8080 \
 	--name centos_desktop_test \
 	$(REPO_CENTOS):$(TAG_CENTOS)
+
+push_centos:
+	docker push $(REPO_CENTOS):$(TAG_CENTOS)
 
 exec_centos:
 	docker exec -ti centos_desktop_test bash
