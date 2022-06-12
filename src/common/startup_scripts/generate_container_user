@@ -18,7 +18,7 @@ detect_libnss_wrapper() {
 USER_ID=$(id -u)
 GROUP_ID=$(id -g)
 
-# Attempt to set the username to the kasm username
+# Attempt to set the username to the vprix username
 USERNAME=${VPRIX_USER:-default}
 # Make the username posix compliant
 USERNAME=$(echo "$USERNAME" | sed -r 's#[^a-zA-Z0-9\._\-]#_#g')

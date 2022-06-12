@@ -42,7 +42,7 @@ RUN  cp /etc/apt/sources.list /etc/apt/sources.list.backup && \
      cp $INST_SCRIPTS/tools/sources.list /etc/apt/sources.list && \
      apt-get update && \
      DEBIAN_FRONTEND=noninteractive TZ=Asia/Shanghai apt-get -y install tzdata && \
-     apt-get install -y vim wget net-tools locales bzip2 wmctrl software-properties-common mesa-utils && \
+     apt-get install -y vim wget curl net-tools locales bzip2 wmctrl software-properties-common mesa-utils && \
      apt-get clean -y
 
 
@@ -104,7 +104,7 @@ RUN bash $VPRIX_AGENT_PATH/install_vprix_agent.sh && rm -rf $VPRIX_AGENT_PATH/in
 #COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
 #RUN bash $INST_SCRIPTS/cursors/install_cursors.sh && rm -rf $INST_SCRIPTS/cursors/
 
-
+COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
 
 ### 创建运行时用户
 RUN (groupadd -g 1000 $VPRIX_USER \

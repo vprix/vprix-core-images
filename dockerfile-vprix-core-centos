@@ -94,6 +94,7 @@ ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_defa
 COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
 RUN bash $INST_SCRIPTS/cursors/install_cursors.sh && rm -rf $INST_SCRIPTS/cursors/
 
+COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
 
 ### 安装vprix agent
 COPY ./src/common/agent $VPRIX_AGENT_PATH/
