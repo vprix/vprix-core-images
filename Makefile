@@ -1,10 +1,10 @@
 .PHONY: build run
 
-REPO  ?= vprix/core-ubuntu-bionic
-TAG   ?= 0.0.1
+REPO  ?= vprix/core-ubuntu-focal
+TAG   ?= develop
 
 REPO_CENTOS  ?= vprix/core-centos7
-TAG_CENTOS   ?= 0.0.1
+TAG_CENTOS   ?= develop
 
 build:
 	docker build -f ./dockerfile-vprix-core -t $(REPO):$(TAG) .
