@@ -14,9 +14,11 @@ else
   apt-get update
   # 使用非交互模式设置tzdata
   DEBIAN_FRONTEND=noninteractive TZ=Asia/Shanghai apt-get -y install tzdata
-  apt-get install -y vim wget net-tools locales bzip2 wmctrl software-properties-common mesa-utils
+  # mesa-utils 查看显卡驱动安装情况
+  # wmctrl 窗口分割
+  apt-get install -y vim wget curl net-tools locales bzip2 wmctrl software-properties-common mesa-utils
   apt-get clean -y
 
-  echo "generate locales für en_US.UTF-8"
+  echo "generate locales en_US.UTF-8"
   locale-gen en_US.UTF-8
 fi
