@@ -1,6 +1,27 @@
 ARG BASE_IMAGE="ubuntu:20.04"
 
-FROM $BASE_IMAGE AS install_tools
+# clone agent
+FROM alpine/git:latest as agent_git
+
+WORKDIR /vprix
+
+RUN git clone https://github.com/vprix/agent.git
+
+
+# build agent
+FROM golang:1.18 as agent
+
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
+
+WORKDIR /go/release
+
+COPY --from=agent_git /vprix/agent ./
+
+RUN go mod tidy && go install github.com/gobuffalo/packr/v2/packr2@latest &&  packr2 && go build -ldflags '-s -w' -o agent
+
+# build core system
+FROM ${BASE_IMAGE} AS install_tools
 
 LABEL "org.opencontainers.image.authors"='vprix team "info@vprix.com"'
 LABEL "com.vprix.image"="true"
@@ -96,6 +117,8 @@ ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_defa
 
 ### 安装vprix agent
 COPY ./src/common/agent $VPRIX_AGENT_PATH/
+# copy from pre build
+COPY --from=agent /go/release/agent $VPRIX_AGENT_PATH/
 RUN bash $VPRIX_AGENT_PATH/install_vprix_agent.sh && rm -rf $VPRIX_AGENT_PATH/install_vprix_agent.sh
 
 
