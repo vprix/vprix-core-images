@@ -9,8 +9,8 @@ if [ "${DISTRO}" == "centos" ] ; then
   yum clean all
   rm -rf /tmp/*
 else
-    apt -y install tigervnc-standalone-server
-    apt clean -y
+    DEBIAN_FRONTEND=noninteractive apt-get -y install xinit xauth dbus-x11 x11-xserver-utils xdg-utils tigervnc-standalone-server  libjpeg-turbo8
+    apt-get clean -y
 fi
 
 #mkdir -p $VPRIX_VNC_PATH/www/Downloads

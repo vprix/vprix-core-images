@@ -12,13 +12,16 @@ RUN git clone https://github.com/vprix/agent.git
 FROM golang:1.18 as agent
 
 ENV GO111MODULE=on
-ENV GOPROXY=https://goproxy.cn,direct
+ENV GOPROXY=https://proxy.golang.com.cn,direct
 
 WORKDIR /go/release
 
 COPY --from=agent_git /vprix/agent ./
 
-RUN go mod tidy && go install github.com/gobuffalo/packr/v2/packr2@latest &&  packr2 && go build -ldflags '-s -w' -o agent
+RUN go mod tidy && \
+    go install github.com/gobuffalo/packr/v2/packr2@latest && \
+    packr2 -v && \
+    go build -ldflags '-s -w' -o agent
 
 # build core system
 FROM ${BASE_IMAGE} AS install_tools
@@ -58,48 +61,39 @@ RUN mkdir -p $HOME/Desktop
 COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
 ## 正式编译的逻辑
 RUN bash $INST_SCRIPTS/tools/install_tools.sh && rm -rf $INST_SCRIPTS/tools/
-## 测试编译的逻辑
-#RUN  cp /etc/apt/sources.list /etc/apt/sources.list.backup && \
-#     cp $INST_SCRIPTS/tools/sources.list /etc/apt/sources.list && \
-#     apt-get update && \
-#     DEBIAN_FRONTEND=noninteractive TZ=Asia/Shanghai apt-get -y install tzdata && \
-#     apt-get install -y vim wget curl net-tools locales bzip2 wmctrl software-properties-common mesa-utils && \
-#     apt-get clean -y
 
 
 ### 安装自定义字体
-#COPY ./src/ubuntu/install/fonts $INST_SCRIPTS/fonts/
-#RUN bash $INST_SCRIPTS/fonts/install_custom_fonts.sh && rm -rf $INST_SCRIPTS/fonts/
+COPY ./src/ubuntu/install/fonts $INST_SCRIPTS/fonts/
+RUN bash $INST_SCRIPTS/fonts/install_custom_fonts.sh && rm -rf $INST_SCRIPTS/fonts/
 
+#### 安装自定义鼠标指针
+COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
+RUN bash $INST_SCRIPTS/cursors/install_cursors.sh && rm -rf $INST_SCRIPTS/cursors/
 
 ### 安装 xfce UI
 COPY ./src/ubuntu/install/xfce $INST_SCRIPTS/xfce/
 ## 正式编译的逻辑
 RUN bash $INST_SCRIPTS/xfce/install_xfce_ui.sh && rm -rf $INST_SCRIPTS/xfce/
-### 测试编译的逻辑
-#RUN  DEBIAN_FRONTEND=noninteractive apt-get install -y xfce4 xfce4-terminal xterm xclip && \
-#     apt-get clean -y
 
 
 ### 安装tigervnc组件
 COPY ./src/ubuntu/install/tiger_vnc $INST_SCRIPTS/tiger_vnc/
 ## 正式编译的逻辑
 RUN bash $INST_SCRIPTS/tiger_vnc/install_tiger_vnc.sh && rm -rf $INST_SCRIPTS/tiger_vnc/
-## 测试编译的逻辑
-#RUN  apt-get -y install tigervnc-standalone-server && \
-#      apt-get clean -y
+
 
 ### Setup Container User - Libnss Wrapper
 COPY ./src/ubuntu/install/libnss $INST_SCRIPTS/libnss/
 RUN bash $INST_SCRIPTS/libnss/libnss_wrapper.sh  && rm -rf $INST_SCRIPTS/libnss/
-## 测试编译的逻辑
-#RUN  apt-get install -y libnss-wrapper gettext && \
-#     apt-get clean -y && \
-#     echo 'source $STARTUPDIR/generate_container_user' >> $HOME/.bashrc
+
 
 ### configure startup
 ADD ./src/common/startup_scripts $STARTUPDIR
 RUN bash $STARTUPDIR/set_user_permission.sh $STARTUPDIR $HOME
+
+# 安装窗口脚本
+COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
 
 ### 设置ui的配置信息和背景图
 ADD ./src/$DISTRO/xfce/.config/ $HOME/.config/
@@ -111,23 +105,9 @@ ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_ubu
 ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_vprix.png
 ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_default.png
 
-
-
-
-
 ### 安装vprix agent
-COPY ./src/common/agent $VPRIX_AGENT_PATH/
-# copy from pre build
 COPY --from=agent /go/release/agent $VPRIX_AGENT_PATH/
-RUN bash $VPRIX_AGENT_PATH/install_vprix_agent.sh && rm -rf $VPRIX_AGENT_PATH/install_vprix_agent.sh
 
-
-
-#### 安装自定义鼠标指针
-#COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
-#RUN bash $INST_SCRIPTS/cursors/install_cursors.sh && rm -rf $INST_SCRIPTS/cursors/
-
-COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
 
 ### 创建运行时用户
 RUN (groupadd -g 1000 $VPRIX_USER \

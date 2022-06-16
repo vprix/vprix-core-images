@@ -12,13 +12,16 @@ RUN git clone https://github.com/vprix/agent.git
 FROM golang:1.18 as agent
 
 ENV GO111MODULE=on
-ENV GOPROXY=https://goproxy.cn,direct
+ENV GOPROXY=https://proxy.golang.com.cn,direct
 
 WORKDIR /go/release
 
 COPY --from=agent_git /vprix/agent ./
 
-RUN go mod tidy && go install github.com/gobuffalo/packr/v2/packr2@latest &&  packr2 && go build -ldflags '-s -w' -o agent
+RUN go mod tidy && \
+    go install github.com/gobuffalo/packr/v2/packr2@latest && \
+    packr2 -v && \
+    go build -ldflags '-s -w' -o agent
 
 # build core system
 FROM $BASE_IMAGE AS install_tools
@@ -54,50 +57,31 @@ RUN mkdir -p $HOME/Desktop
 COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
 ## 正式编译的逻辑
 RUN bash $INST_SCRIPTS/tools/install_tools.sh && rm -rf $INST_SCRIPTS/tools/
-## 测试编译的逻辑
-#RUN yum -y install deltarpm  && \
-#    yum -y install epel-release && \
-#    yum -y update && \
-#    yum -y install vim  wget which net-tools bzip2 \
-#    && yum clean all && rm -rf /tmp/*
 
 
 ## 安装自定义字体
-#COPY ./src/ubuntu/install/fonts $INST_SCRIPTS/fonts/
-#RUN bash $INST_SCRIPTS/fonts/install_custom_fonts.sh && rm -rf $INST_SCRIPTS/fonts/
-## 测试编译的逻辑
-#RUN  yum install -y wqy-zenhei-fonts && \
-#      yum clean all && rm -rf /tmp/*
+COPY ./src/ubuntu/install/fonts $INST_SCRIPTS/fonts/
+RUN bash $INST_SCRIPTS/fonts/install_custom_fonts.sh && rm -rf $INST_SCRIPTS/fonts/
 
 ### 安装 xfce UI
 COPY ./src/ubuntu/install/xfce $INST_SCRIPTS/xfce/
 ## 正式编译的逻辑
 RUN bash $INST_SCRIPTS/xfce/install_xfce_ui.sh && rm -rf $INST_SCRIPTS/xfce/
-## 测试编译的逻辑
-#RUN yum --enablerepo=epel -y -x gnome-keyring --skip-broken groups install "Xfce"  && \
-#    yum -y groups install "Fonts" && \
-#    yum erase -y *power* *screensaver* && \
-#    yum clean all && \
-#    rm /etc/xdg/autostart/xfce-polkit* && \
-#    /bin/dbus-uuidgen > /etc/machine-id
 
 
 ### 安装tigervnc组件
 COPY ./src/ubuntu/install/tiger_vnc $INST_SCRIPTS/tiger_vnc/
 ## 正式编译的逻辑
 RUN bash $INST_SCRIPTS/tiger_vnc/install_tiger_vnc.sh && rm -rf $INST_SCRIPTS/tiger_vnc/
-## 测试编译的逻辑
-#RUN yum -y install tigervnc-server tigervnc-server-module xinetd && \
-#    yum clean all && rm -rf /tmp/*
+
 
 ### Setup Container User - Libnss Wrapper
 COPY ./src/ubuntu/install/libnss $INST_SCRIPTS/libnss/
 RUN bash $INST_SCRIPTS/libnss/libnss_wrapper.sh  && rm -rf $INST_SCRIPTS/libnss/
-## 测试编译的逻辑
-#RUN  yum install -y centos-release-scl-rh && yum install -y nss_wrapper \
-#      yum install -y gettext \
-#      yum clean all && \
-#      echo 'source $STARTUPDIR/generate_container_user' >> $HOME/.bashrc
+
+### 安装自定义鼠标指针
+COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
+RUN bash $INST_SCRIPTS/cursors/install_cursors.sh && rm -rf $INST_SCRIPTS/cursors/
 
 ### configure startup
 ADD ./src/common/startup_scripts $STARTUPDIR
@@ -110,19 +94,11 @@ RUN mkdir -p /usr/share/extra/icons/
 ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.jpg
 ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_default.png
 
-
-### 安装自定义鼠标指针
-COPY ./src/ubuntu/install/cursors $INST_SCRIPTS/cursors/
-RUN bash $INST_SCRIPTS/cursors/install_cursors.sh && rm -rf $INST_SCRIPTS/cursors/
-
+# 安装窗口脚本
 COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
 
 ### 安装vprix agent
-COPY ./src/common/agent $VPRIX_AGENT_PATH/
-# copy from pre build
 COPY --from=agent /go/release/agent $VPRIX_AGENT_PATH/
-RUN bash $VPRIX_AGENT_PATH/install_vprix_agent.sh && rm -rf $VPRIX_AGENT_PATH/install_vprix_agent.sh
-
 
 
 ### 创建运行时用户
