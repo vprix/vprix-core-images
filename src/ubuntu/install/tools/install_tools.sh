@@ -16,7 +16,7 @@ else
   DEBIAN_FRONTEND=noninteractive TZ=Asia/Shanghai apt-get -y install tzdata
   # mesa-utils 查看显卡驱动安装情况
   # wmctrl 窗口分割
-  apt-get install -y vim wget curl net-tools locales bzip2 wmctrl software-properties-common mesa-utils
+  apt-get install -y vim wget curl net-tools locales bzip2 wmctrl software-properties-common mesa-utils apt-utils
   apt-get clean -y
 
   echo "generate locales en_US.UTF-8"
