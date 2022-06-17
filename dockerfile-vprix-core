@@ -99,11 +99,11 @@ COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
 ADD ./src/$DISTRO/xfce/.config/ $HOME/.config/
 RUN mkdir -p /usr/share/extra/backgrounds/
 RUN mkdir -p /usr/share/extra/icons/
-ADD /src/common/resources/images/bg_vprix.jpg  /usr/share/extra/backgrounds/bg_vprix.jpg
-ADD /src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.jpg
-ADD /src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_ubuntu.png
-ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_vprix.png
-ADD /src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_default.png
+ADD ./src/common/resources/images/bg_vprix.jpg  /usr/share/extra/backgrounds/bg_vprix.jpg
+ADD ./src/common/resources/images/$BG_IMG  /usr/share/extra/backgrounds/bg_default.jpg
+ADD ./src/common/resources/images/icon_ubuntu.png /usr/share/extra/icons/icon_ubuntu.png
+ADD ./src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_vprix.png
+ADD ./src/common/resources/images/icon_vprix.png /usr/share/extra/icons/icon_default.png
 
 ### 安装vprix agent
 COPY --from=agent /go/release/agent $VPRIX_AGENT_PATH/

@@ -53,7 +53,7 @@ then
     PLUGIN_ID=$(grep  power-manager-plugin /etc/xdg/xfce4/panel/default.xml | perl -n -e '/plugin-(\d+)/ && print $1')
     sed -i "s@<value type=\"int\" value=\"${PLUGIN_ID}\"/>@@g" /etc/xdg/xfce4/panel/default.xml
 elif [ "$DISTRO" = "ubuntu" ]; then
-   DEBIAN_FRONTEND=noninteractive  apt-get install -y supervisor xfce4 xfce4-terminal xterm
+   DEBIAN_FRONTEND=noninteractive  apt-get install --no-install-recommends -y xinit xauth dbus-x11 x11-xserver-utils xdg-utils xfce4 xfce4-terminal xterm
 elif [ "$DISTRO" = "centos" ]; then
     yum install -y epel-release
     disable_epel_nss_wrapper_that_breaks_firefox
@@ -64,10 +64,10 @@ fi
 
 
 if [ "$DISTRO" = "centos" ]; then
-  yum clean all
+  yum clean all && rm -rf /tmp/* && rm -rf /var/cache/yum/*
 else
-  apt-get purge -y pm-utils xscreensaver*
   apt-get clean -y
+  rm -rf /var/lib/apt/lists/*
 fi
 
 

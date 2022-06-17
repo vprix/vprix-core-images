@@ -6,11 +6,12 @@ cd /tmp
 
 if [ "${DISTRO}" == "centos" ] ; then
   yum -y install tigervnc-server tigervnc-server-module xinetd
-  yum clean all
-  rm -rf /tmp/*
+  yum clean all && rm -rf /tmp/* && rm -rf /var/cache/yum/*
 else
-    DEBIAN_FRONTEND=noninteractive apt-get -y install xinit xauth dbus-x11 x11-xserver-utils xdg-utils tigervnc-standalone-server  libjpeg-turbo8
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install  tigervnc-standalone-server
     apt-get clean -y
+    rm -rf /var/lib/apt/lists/*
 fi
 
 #mkdir -p $VPRIX_VNC_PATH/www/Downloads
