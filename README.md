@@ -13,6 +13,17 @@ docker run --rm -it --shm-size=512m -p 8080:8080  vprix/core-ubuntu-focal:develo
 
 ## 编译镜像
 
+编译`ubuntu`镜像：
+```shell
+make build-ubuntu 
+```
+
+编译`centos`镜像:
+```shell
+make build-centos 
+```
+
+更多用法参考`Makefile`文件。
 
 ## 关于 Vprix
 

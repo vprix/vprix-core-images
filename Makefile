@@ -6,35 +6,35 @@ TAG   ?= develop
 REPO_CENTOS  ?= vprix/core-centos7
 TAG_CENTOS   ?= develop
 
-build:
+build-ubuntu:
 	docker build -f ./dockerfile-vprix-core -t $(REPO):$(TAG) .
 
-run:
+run-ubuntu:
 	docker run -it --rm \
 	-p 8080:8080 \
 	--shm-size=512m \
-	--name ubuntu_desktop_test \
+	--name vprix-ubuntu-core-desktop \
 	$(REPO):$(TAG)
 
-push:
+push-ubuntu:
 	docker push $(REPO):$(TAG)
 
-exec:
-	docker exec -ti ubuntu_desktop_test bash
+exec-ubuntu:
+	docker exec -ti vprix-ubuntu-core-desktop bash
 
 
-build_centos:
+build-centos:
 	docker build -f ./dockerfile-vprix-core-centos -t $(REPO_CENTOS):$(TAG_CENTOS) .
 
-run_centos:
+run-centos:
 	docker run -it --rm \
 	-p 8080:8080 \
 	--shm-size=512m \
-	--name centos_desktop_test \
+	--name vprix-centos-core-desktop \
 	$(REPO_CENTOS):$(TAG_CENTOS)
 
-push_centos:
+push-centos:
 	docker push $(REPO_CENTOS):$(TAG_CENTOS)
 
-exec_centos:
-	docker exec -ti centos_desktop_test bash
+exec-centos:
+	docker exec -ti vprix-centos-core-desktop bash
