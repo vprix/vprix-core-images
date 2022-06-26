@@ -12,6 +12,7 @@ build:
 run:
 	docker run -it --rm \
 	-p 8080:8080 \
+	--shm-size=512m \
 	--name ubuntu_desktop_test \
 	$(REPO):$(TAG)
 
@@ -28,6 +29,7 @@ build_centos:
 run_centos:
 	docker run -it --rm \
 	-p 8080:8080 \
+	--shm-size=512m \
 	--name centos_desktop_test \
 	$(REPO_CENTOS):$(TAG_CENTOS)
 
