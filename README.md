@@ -11,8 +11,9 @@ docker run --rm -it --shm-size=512m -p 8080:8080  vprix/core-ubuntu-focal:develo
 
 启动容器以后，可以在浏览器访问: `http://localhost:8080`
 
-## 编译镜像
+## 如何使用
 
+### 编译镜像
 编译`ubuntu`镜像：
 ```shell
 make build-ubuntu 
@@ -22,6 +23,19 @@ make build-ubuntu
 ```shell
 make build-centos 
 ```
+
+### 运行
+
+运行`ubuntu`镜像：
+```shell
+make run-ubuntu 
+```
+
+运行`centos`镜像:
+```shell
+make run-centos 
+```
+
 
 更多用法参考`Makefile`文件。
 
